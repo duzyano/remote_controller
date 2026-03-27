@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Controller</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="header">
+    <span class="title">Controller</span>
+    <div class="status-badge" id="statusBadge">
+      <div class="status-dot"></div>
+      <span id="statusText">verbinden...</span>
+    </div>
+  </div>
+
+  <div class="track-info">
+    <div class="track-name" id="trackName">—</div>
+    <div class="track-artist" id="trackArtist">wacht op display...</div>
+  </div>
+
+  <div class="seekbar-section">
+    <div class="seekbar-label">vooruitspoelen</div>
+    <input type="range" id="seekbar" min="0" max="100" value="0">
+    <div class="seekbar-times">
+      <span>0:00</span><span>—</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="btn-row">
+      <button class="btn" onclick="send('prev')">⏮</button>
+      <button class="btn play" id="playBtn" onclick="togglePlay()">▶</button>
+      <button class="btn" onclick="send('next')">⏭</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-vol" onclick="send('volume_down')">−</button>
+      <div class="vol-label">vol <span id="volDisplay">70</span></div>
+      <button class="btn btn-vol" onclick="send('volume_up')">+</button>
+    </div>
+  </div>
+
+  <script>
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    const playBtn = document.getElementById('playBtn');
+    const seekbar = document.getElementById('seekbar');
+    const volDisplay = document.getElementById('volDisplay');
+
+    let isPlaying = false;
+    let seekTimeout = null;
+
+    const ws = new WebSocket(`ws://${location.hostname}:3000`);
+
+    ws.onopen = () => {
+      statusBadge.classList.add('connected');
+      statusText.textContent = 'verbonden';
+    };
+
+    ws.onclose = () => {
+      statusBadge.classList.remove('connected');
+      statusText.textContent = 'verbroken';
+    };
+
+    ws.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      if (data.type === 'status') return;
+      if (data.action === 'volume_up') volDisplay.textContent = Math.min(100, parseInt(volDisplay.textContent) + 10);
+      if (data.action === 'volume_down') volDisplay.textContent = Math.max(0, parseInt(volDisplay.textContent) - 10);
+    };
+
+    function send(action, extra = {}) {
+      if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ action, ...extra }));
+    }
+
+    function togglePlay() {
+      send('play_pause');
+      isPlaying = !isPlaying;
+      playBtn.textContent = isPlaying ? '⏸' : '▶';
+      if (isPlaying) {
+        playBtn.classList.add('play');
+        playBtn.classList.remove('paused');
+      } else {
+        playBtn.classList.remove('play');
+        playBtn.classList.add('paused');
+      }
+    }
+
+    seekbar.addEventListener('input', () => {
+      clearTimeout(seekTimeout);
+      seekTimeout = setTimeout(() => send('seek', { value: parseInt(seekbar.value) }), 200);
+    });
+  </script>
+</body>
+
+</html>
+```
