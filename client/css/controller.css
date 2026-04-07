@@ -1,0 +1,248 @@
+ *,
+ *::before,
+ *::after {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+ }
+
+ :root {
+     --bg: #0d0d0d;
+     --surface: #161616;
+     --surface2: #1f1f1f;
+     --border: #2a2a2a;
+     --accent: #c8f560;
+     --accent-dim: rgba(200, 245, 96, 0.1);
+     --text: #f0f0f0;
+     --muted: #666;
+ }
+
+ html,
+ body {
+     height: 100%;
+     font-family: 'DM Sans', sans-serif;
+     background: var(--bg);
+     color: var(--text);
+     touch-action: manipulation;
+ }
+
+ body {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: space-between;
+     padding: 1.5rem 1.25rem 2.5rem;
+     min-height: 100%;
+     gap: 1.5rem;
+ }
+
+ /* Header */
+ .header {
+     width: 100%;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+
+ .title {
+     font-family: 'DM Mono', monospace;
+     font-size: 12px;
+     color: var(--muted);
+     text-transform: uppercase;
+     letter-spacing: 0.08em;
+ }
+
+ .status-badge {
+     display: flex;
+     align-items: center;
+     gap: 5px;
+     font-family: 'DM Mono', monospace;
+     font-size: 11px;
+     color: var(--muted);
+     padding: 4px 10px;
+     border: 1px solid var(--border);
+     border-radius: 20px;
+     transition: all 0.3s;
+ }
+
+ .status-badge.connected {
+     color: var(--accent);
+     border-color: rgba(200, 245, 96, 0.3);
+     background: var(--accent-dim);
+ }
+
+ .status-dot {
+     width: 5px;
+     height: 5px;
+     border-radius: 50%;
+     background: var(--muted);
+     transition: background 0.3s;
+ }
+
+ .status-badge.connected .status-dot {
+     background: var(--accent);
+     box-shadow: 0 0 5px var(--accent);
+ }
+
+ /* Track info */
+ .track-info {
+     text-align: center;
+     width: 100%;
+ }
+
+ .track-name {
+     font-size: 17px;
+     font-weight: 500;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+ }
+
+ .track-artist {
+     font-size: 13px;
+     color: var(--muted);
+     margin-top: 3px;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+ }
+
+ /* Seekbar */
+ .seekbar-section {
+     width: 100%;
+ }
+
+ .seekbar-times {
+     display: flex;
+     justify-content: space-between;
+     font-family: 'DM Mono', monospace;
+     font-size: 11px;
+     color: var(--muted);
+     margin-bottom: 6px;
+ }
+
+ input[type=range] {
+     width: 100%;
+     -webkit-appearance: none;
+     appearance: none;
+     height: 5px;
+     border-radius: 3px;
+     background: var(--surface2);
+     outline: none;
+     cursor: pointer;
+ }
+
+ input[type=range]::-webkit-slider-thumb {
+     -webkit-appearance: none;
+     width: 20px;
+     height: 20px;
+     border-radius: 50%;
+     background: var(--accent);
+     border: 2px solid var(--bg);
+ }
+
+ input[type=range]::-moz-range-thumb {
+     width: 20px;
+     height: 20px;
+     border-radius: 50%;
+     background: var(--accent);
+     border: 2px solid var(--bg);
+     border: none;
+ }
+
+ /* Controls */
+ .controls {
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+     width: 100%;
+ }
+
+ /* Hoofd knoppen rij: <<| ⏮ ▶/⏸ ⏭ |>> */
+ .btn-row {
+     display: flex;
+     gap: 8px;
+     width: 100%;
+     align-items: center;
+ }
+
+ .btn {
+     flex: 1;
+     height: 64px;
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: 14px;
+     color: var(--text);
+     font-size: 20px;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     transition: background 0.1s, transform 0.08s, border-color 0.1s;
+     -webkit-tap-highlight-color: transparent;
+     user-select: none;
+ }
+
+ .btn:active {
+     background: var(--surface2);
+     transform: scale(0.94);
+     border-color: var(--accent);
+ }
+
+ /* Play/pause knop groter en groen */
+ .btn.play-btn {
+     flex: 1.6;
+     background: var(--accent);
+     border-color: var(--accent);
+     color: #0d0d0d;
+     font-size: 28px;
+ }
+
+ .btn.play-btn:active {
+     background: #aadd40;
+ }
+
+ .btn.play-btn.paused {
+     background: var(--surface);
+     border-color: var(--border);
+     color: var(--text);
+ }
+
+ /* Seek knoppen (5 sec) kleiner label */
+ .btn .btn-label {
+     font-size: 10px;
+     color: var(--muted);
+     display: block;
+     line-height: 1;
+     margin-top: 2px;
+ }
+
+ .btn.seek-btn {
+     flex-direction: column;
+     font-size: 16px;
+ }
+
+ /* Volume rij */
+ .btn-vol {
+     height: 56px;
+     font-size: 20px;
+ }
+
+ .vol-label {
+     font-family: 'DM Mono', monospace;
+     font-size: 12px;
+     color: var(--muted);
+     text-align: center;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     min-width: 48px;
+     flex-direction: column;
+     gap: 2px;
+ }
+
+ #volDisplay {
+     font-size: 16px;
+     color: var(--accent);
+     font-weight: 500;
+ }

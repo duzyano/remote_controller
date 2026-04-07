@@ -20,18 +20,40 @@
                 <span id="statusText">wachten...</span>
             </div>
         </div>
-        <div class="now-playing">
-            <div class="track-info">
-                <div class="album-art" id="albumArt">♫</div>
-                <div class="track-text">
-                    <div class="track-name" id="trackName">Geen nummer geladen</div>
-                    <div class="track-artist" id="trackArtist">Voeg MP3's toe aan /client/music/</div>
+
+        <div class="album-library">
+            <div class="album-library-header">
+                <div>
+                    <div class="section-title">Albums</div>
+                    <div class="section-subtitle">Klik op een album om de nummers te zien.</div>
                 </div>
-                <div class="volume-display">
-                    <div class="volume-bar-wrap">
-                        <div class="volume-bar-fill" id="volumeBar" style="height:70%"></div>
+            </div>
+            <div class="album-grid" id="albumGrid"></div>
+        </div>
+
+        <div class="now-playing">
+            <div class="album-header">
+                <button class="album-back" id="albumBack" onclick="scrollToAlbums()">← Terug naar albums</button>
+                <div class="track-info">
+                    <div class="album-art clickable" id="albumCoverContainer">
+                        <img id="albumArt" src="" alt="Album Art"
+                            style="width:100%; height:100%; object-fit:cover; border-radius:10px; display:none;"
+                            onerror="document.getElementById('fallback').style.display='block'; this.style.display='none';">
+                        <div id="fallback"
+                            style="display:block; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:28px;">
+                            ♫</div>
                     </div>
-                    <div class="volume-label" id="volumeLabel">70</div>
+                    <div class="track-text">
+                        <div class="track-name" id="trackName">Kies een album</div>
+                        <div class="track-artist" id="trackArtist">Selecteer een album om te starten</div>
+                        <div class="album-meta" id="albumMeta">Klik op de cover om tracks te tonen.</div>
+                    </div>
+                    <div class="volume-display">
+                        <div class="volume-bar-wrap">
+                            <div class="volume-bar-fill" id="volumeBar" style="height:70%"></div>
+                        </div>
+                        <div class="volume-label" id="volumeLabel">70</div>
+                    </div>
                 </div>
             </div>
             <div class="progress-section">
@@ -44,10 +66,12 @@
                 </div>
             </div>
         </div>
-        <div class="playlist">
-            <div class="playlist-header">Playlist</div>
+
+        <div class="album-tracklist" id="albumTracklist">
+            <div class="playlist-header" id="tracklistHeader">Album tracks</div>
             <div id="playlistItems"></div>
         </div>
+
         <div class="log" id="log">—</div>
     </div>
     <audio id="audio"></audio>
@@ -56,6 +80,8 @@
         const trackNameEl = document.getElementById('trackName');
         const trackArtistEl = document.getElementById('trackArtist');
         const albumArt = document.getElementById('albumArt');
+        const fallback = document.getElementById('fallback');
+        const albumCoverContainer = document.getElementById('albumCoverContainer');
         const progressFill = document.getElementById('progressFill');
         const currentTimeEl = document.getElementById('currentTime');
         const totalTimeEl = document.getElementById('totalTime');
@@ -65,40 +91,116 @@
         const statusText = document.getElementById('statusText');
         const logEl = document.getElementById('log');
         const playlistItems = document.getElementById('playlistItems');
+        const albumGrid = document.getElementById('albumGrid');
+        const tracklistHeader = document.getElementById('tracklistHeader');
+        const albumMeta = document.getElementById('albumMeta');
+        const albumTracklist = document.getElementById('albumTracklist');
 
-        // === VOEG HIER JE MP3-BESTANDEN TOE ===
-        const tracks = [
-            { title: 'Nummer 1', artist: 'Artiest 1', src: 'music/track1.mp3' },
-            { title: 'Nummer 2', artist: 'Artiest 2', src: 'music/track2.mp3' },
-            { title: 'Nummer 3', artist: 'Artiest 3', src: 'music/track3.mp3' },
+        const albums = [
+            {
+                name: 'Utopia',
+                artist: 'Travis Scott',
+                year: '2023',
+                image: 'albums/Utopia/image.png',
+                tracks: [
+                    { title: "HYAENA", src: "albums/Utopia/01-HYAENA.mp3" },
+                    { title: "THANK GOD", src: "albums/Utopia/02-THANK GOD (Ft. KayCyy & Teezo Touchdown).mp3" },
+                    { title: "MODERN JAM", src: "albums/Utopia/03-MODERN JAM (Ft. Teezo Touchdown).mp3" },
+                    { title: "MY EYES", src: "albums/Utopia/04-MY EYES (Ft. Sampha).mp3" },
+                    { title: "GOD'S COUNTRY", src: "albums/Utopia/05-GOD'S COUNTRY.mp3" },
+                    { title: "SIRENS", src: "albums/Utopia/06-SIRENS.mp3" },
+                    { title: "MELTDOWN", src: "albums/Utopia/07-MELTDOWN (Ft. Drake).mp3" },
+                    { title: "FE!N", src: "albums/Utopia/08-FE!N (Ft. Palyboi Carti & Sheck Wes).mp3" },
+                    { title: "DELRESTO (ECHOES)", src: "albums/Utopia/09-DELRESTO (ECHOES) (Ft. Beyoncé).mp3" },
+                    { title: "I KNOW!", src: "albums/Utopia/10-I KNOW!.mp3" },
+                    { title: "TOPIA TWINS", src: "albums/Utopia/11-TOPIA TWINS (Ft. 21 Savage & Rob49).mp3" },
+                    { title: "CIRCUS MAXIMUS", src: "albums/Utopia/12-CIRCUS MAXIMUS (Ft. Swae Lee & The Weeknd).mp3" },
+                    { title: "LOST FOREVER", src: "albums/Utopia/15-LOST FOREVER (Ft. Westside Gunn & James Blake).mp3" },
+                    { title: "LOOOVE", src: "albums/Utopia/16-LOOOVE (Ft. Kid Cudi).mp3" },
+                    { title: "K-POP", src: "albums/Utopia/17-K-POP (Ft. The Weeknd & Bad Bunny).mp3" },
+                    { title: "TELEKINESIS", src: "albums/Utopia/18-TELEKINESIS (Ft. Future & SZA).mp3" },
+                    { title: "TIL FURTHER NOTICE", src: "albums/Utopia/19-TIL FURTHER NOTICE (Ft. 21 Savage).mp3" }
+                ]
+            }
         ];
 
-        let currentIndex = 0;
+        let currentAlbumIndex = 0;
+        let currentTrackIndex = 0;
         let volume = 0.7;
 
-        function loadTrack(index) {
-            if (index < 0) index = tracks.length - 1;
-            if (index >= tracks.length) index = 0;
-            currentIndex = index;
-            const t = tracks[currentIndex];
-            audio.src = t.src;
-            audio.volume = volume;
-            trackNameEl.textContent = t.title;
-            trackArtistEl.textContent = t.artist;
+        function getCurrentAlbum() {
+            return albums[currentAlbumIndex];
+        }
+
+        function renderAlbumGrid() {
+            albumGrid.innerHTML = '';
+            albums.forEach((album, index) => {
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'album-card' + (index === currentAlbumIndex ? ' active' : '');
+                card.innerHTML = `
+                    <img src="${album.image}" alt="${album.name}">
+                    <div class="album-card-info">
+                        <div class="album-card-title">${album.name}</div>
+                        <div class="album-card-subtitle">${album.artist}</div>
+                    </div>
+                `;
+                card.onclick = () => { selectAlbum(index); };
+                albumGrid.appendChild(card);
+            });
+        }
+
+        function selectAlbum(index) {
+            currentAlbumIndex = index;
+            currentTrackIndex = 0;
+            renderAlbumGrid();
+            updateAlbumInfo();
             renderPlaylist();
+            hideTracklist();
+            loadTrack(0, false);
+        }
+
+        function updateAlbumInfo() {
+            const album = getCurrentAlbum();
+            albumMeta.textContent = `${album.artist} · ${album.year} · ${album.tracks.length} tracks`;
+            albumArt.src = album.image;
+            albumArt.style.display = 'block';
+            fallback.style.display = 'none';
+            tracklistHeader.textContent = `${album.name} — ${album.tracks.length} nummers`;
+        }
+
+        function loadTrack(index, play = true) {
+            const album = getCurrentAlbum();
+            if (index < 0) index = album.tracks.length - 1;
+            if (index >= album.tracks.length) index = 0;
+            currentTrackIndex = index;
+            const track = album.tracks[currentTrackIndex];
+            audio.src = track.src;
+            audio.volume = volume;
+            trackNameEl.textContent = track.title;
+            trackArtistEl.textContent = `${album.artist} · ${album.name}`;
+            renderPlaylist();
+            updateAlbumInfo();
+            if (play) {
+                audio.play();
+            }
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'track_info', title: track.title, artist: `${album.artist} · ${album.name}` }));
+            }
         }
 
         function renderPlaylist() {
+            const album = getCurrentAlbum();
             playlistItems.innerHTML = '';
-            tracks.forEach((t, i) => {
+            album.tracks.forEach((track, index) => {
                 const item = document.createElement('div');
-                item.className = 'playlist-item' + (i === currentIndex ? ' active' : '');
+                item.className = 'playlist-item' + (index === currentTrackIndex ? ' active' : '');
                 item.innerHTML = `
-        <span class="playlist-num">${i === currentIndex ? '▶' : i + 1}</span>
-        <span class="playlist-title">${t.title}</span>
-        <span class="playlist-artist">${t.artist}</span>
-      `;
-                item.onclick = () => { loadTrack(i); audio.play(); };
+                    <span class="playlist-num">${index === currentTrackIndex ? '▶' : index + 1}</span>
+                    <span class="playlist-title">${track.title}</span>
+                    <span class="playlist-artist">${album.artist}</span>
+                `;
+                item.onclick = () => { loadTrack(index, true); };
                 playlistItems.appendChild(item);
             });
         }
@@ -115,19 +217,49 @@
             volumeLabel.textContent = Math.round(volume * 100);
         }
 
+        function setLog(message) {
+            logEl.textContent = `laatste commando: ${message} — ${new Date().toLocaleTimeString()}`;
+        }
+
+        function showTracklist() {
+            albumTracklist.classList.add('visible');
+        }
+
+        function hideTracklist() {
+            albumTracklist.classList.remove('visible');
+        }
+
+        function toggleTracklist() {
+            albumTracklist.classList.toggle('visible');
+        }
+
+        function scrollToAlbums() {
+            albumGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         audio.addEventListener('timeupdate', () => {
             if (!audio.duration) return;
             progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
             currentTimeEl.textContent = formatTime(audio.currentTime);
             totalTimeEl.textContent = formatTime(audio.duration);
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'time_update',
+                    progress: Math.round((audio.currentTime / audio.duration) * 100),
+                    current: formatTime(audio.currentTime),
+                    total: formatTime(audio.duration)
+                }));
+            }
         });
 
-        audio.addEventListener('ended', () => { loadTrack(currentIndex + 1); audio.play(); });
-        audio.addEventListener('play', () => albumArt.classList.add('playing'));
-        audio.addEventListener('pause', () => albumArt.classList.remove('playing'));
+        audio.addEventListener('ended', () => { loadTrack(currentTrackIndex + 1); audio.play(); });
+        audio.addEventListener('play', () => { albumArt.classList.add('playing'); sendPlayState(true); });
+        audio.addEventListener('pause', () => { albumArt.classList.remove('playing'); sendPlayState(false); });
 
-        function setLog(msg) {
-            logEl.textContent = `laatste commando: ${msg} — ${new Date().toLocaleTimeString()}`;
+        function sendPlayState(playing) {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'play_state', playing }));
+            }
         }
 
         const ws = new WebSocket(`ws://${location.hostname}:3000`);
@@ -142,16 +274,23 @@
             }
             setLog(data.action);
             switch (data.action) {
-                case 'play_pause': if (audio.paused) { if (!audio.src || audio.src === location.href) loadTrack(0); audio.play(); } else audio.pause(); break;
-                case 'next': loadTrack(currentIndex + 1); audio.play(); break;
-                case 'prev': loadTrack(currentIndex - 1); audio.play(); break;
+                case 'play_pause': if (audio.paused) { if (!audio.src || audio.src === location.href) loadTrack(0, true); audio.play(); } else audio.pause(); break;
+                case 'next': loadTrack(currentTrackIndex + 1, true); break;
+                case 'prev': loadTrack(currentTrackIndex - 1, true); break;
                 case 'volume_up': setVolume(volume + 0.1); break;
                 case 'volume_down': setVolume(volume - 0.1); break;
                 case 'seek': if (audio.duration) audio.currentTime = (data.value / 100) * audio.duration; break;
             }
         };
 
-        loadTrack(0);
+        albumCoverContainer.onclick = () => {
+            if (getCurrentAlbum()) {
+                toggleTracklist();
+            }
+        };
+
+        renderAlbumGrid();
+        selectAlbum(0);
     </script>
 </body>
 

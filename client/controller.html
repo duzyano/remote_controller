@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="nl">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Controller</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/controller.css">
 </head>
-
 <body>
+
   <div class="header">
     <span class="title">Controller</span>
     <div class="status-badge" id="statusBadge">
@@ -26,23 +23,37 @@
   </div>
 
   <div class="seekbar-section">
-    <div class="seekbar-label">vooruitspoelen</div>
-    <input type="range" id="seekbar" min="0" max="100" value="0">
     <div class="seekbar-times">
-      <span>0:00</span><span>—</span>
+      <span id="currentTime">0:00</span>
+      <span id="totalTime">0:00</span>
     </div>
+    <input type="range" id="seekbar" min="0" max="100" value="0">
   </div>
 
   <div class="controls">
+    <!-- Hoofd knoppen: achteruit 5s | vorige | play/pause | volgende | vooruit 5s -->
     <div class="btn-row">
+      <button class="btn seek-btn" onclick="send('seek_back')">
+        ⏪
+        <span class="btn-label">-5s</span>
+      </button>
       <button class="btn" onclick="send('prev')">⏮</button>
-      <button class="btn play" id="playBtn" onclick="togglePlay()">▶</button>
+      <button class="btn play-btn" id="playBtn" onclick="togglePlay()">▶</button>
       <button class="btn" onclick="send('next')">⏭</button>
+      <button class="btn seek-btn" onclick="send('seek_forward')">
+        ⏩
+        <span class="btn-label">+5s</span>
+      </button>
     </div>
+
+    <!-- Volume -->
     <div class="btn-row">
-      <button class="btn btn-vol" onclick="send('volume_down')">−</button>
-      <div class="vol-label">vol <span id="volDisplay">70</span></div>
-      <button class="btn btn-vol" onclick="send('volume_up')">+</button>
+      <button class="btn btn-vol" onclick="send('volume_down')">🔉</button>
+      <div class="vol-label">
+        <span id="volDisplay">70</span>
+        <span style="font-size:10px;color:var(--muted)">vol</span>
+      </div>
+      <button class="btn btn-vol" onclick="send('volume_up')">🔊</button>
     </div>
   </div>
 
@@ -52,6 +63,10 @@
     const playBtn = document.getElementById('playBtn');
     const seekbar = document.getElementById('seekbar');
     const volDisplay = document.getElementById('volDisplay');
+    const trackNameEl = document.getElementById('trackName');
+    const trackArtistEl = document.getElementById('trackArtist');
+    const currentTimeEl = document.getElementById('currentTime');
+    const totalTimeEl = document.getElementById('totalTime');
 
     let isPlaying = false;
     let seekTimeout = null;
@@ -66,38 +81,66 @@
     ws.onclose = () => {
       statusBadge.classList.remove('connected');
       statusText.textContent = 'verbroken';
+      setTimeout(() => location.reload(), 3000);
     };
 
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
       if (data.type === 'status') return;
+
+      // Sync volume display
       if (data.action === 'volume_up') volDisplay.textContent = Math.min(100, parseInt(volDisplay.textContent) + 10);
       if (data.action === 'volume_down') volDisplay.textContent = Math.max(0, parseInt(volDisplay.textContent) - 10);
+
+      // Sync track info van display naar controller
+      if (data.type === 'track_info') {
+        trackNameEl.textContent = data.title;
+        trackArtistEl.textContent = data.artist;
+      }
+
+      // Sync tijd
+      if (data.type === 'time_update') {
+        seekbar.value = data.progress;
+        currentTimeEl.textContent = data.current;
+        totalTimeEl.textContent = data.total;
+      }
+
+      // Sync play state
+      if (data.type === 'play_state') {
+        isPlaying = data.playing;
+        updatePlayBtn();
+      }
     };
 
     function send(action, extra = {}) {
-      if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ action, ...extra }));
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action, ...extra }));
+      }
     }
 
     function togglePlay() {
       send('play_pause');
       isPlaying = !isPlaying;
-      playBtn.textContent = isPlaying ? '⏸' : '▶';
+      updatePlayBtn();
+    }
+
+    function updatePlayBtn() {
       if (isPlaying) {
-        playBtn.classList.add('play');
+        playBtn.textContent = '⏸';
         playBtn.classList.remove('paused');
+        playBtn.classList.add('play-btn');
       } else {
-        playBtn.classList.remove('play');
+        playBtn.textContent = '▶';
         playBtn.classList.add('paused');
       }
     }
 
     seekbar.addEventListener('input', () => {
       clearTimeout(seekTimeout);
-      seekTimeout = setTimeout(() => send('seek', { value: parseInt(seekbar.value) }), 200);
+      seekTimeout = setTimeout(() => {
+        send('seek', { value: parseInt(seekbar.value) });
+      }, 150);
     });
   </script>
 </body>
-
 </html>
-```

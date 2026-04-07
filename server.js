@@ -55,7 +55,7 @@ function broadcastStatus() {
   }
 }
 
-server.listen(PORT, () => {
-  console.log(`Server draait op http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server draait op http://0.0.0.0:${PORT}`);
   console.log(`Controller: http://localhost:${PORT}/controller.html`);
 });
