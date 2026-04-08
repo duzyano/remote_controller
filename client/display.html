@@ -96,6 +96,11 @@
         const albumMeta = document.getElementById('albumMeta');
         const albumTracklist = document.getElementById('albumTracklist');
 
+        audio.addEventListener('error', (e) => {
+            console.error('Audio load error:', audio.error);
+            setLog('Audio error: ' + (audio.error ? audio.error.code : 'unknown'));
+        });
+
         const albums = [
             {
                 name: 'Utopia',
@@ -107,7 +112,7 @@
                     { title: "THANK GOD", src: "albums/Utopia/02-THANK GOD (Ft. KayCyy & Teezo Touchdown).mp3" },
                     { title: "MODERN JAM", src: "albums/Utopia/03-MODERN JAM (Ft. Teezo Touchdown).mp3" },
                     { title: "MY EYES", src: "albums/Utopia/04-MY EYES (Ft. Sampha).mp3" },
-                    { title: "GOD'S COUNTRY", src: "albums/Utopia/05-GOD'S COUNTRY.mp3" },
+                    { title: "GOD'S COUNTRY", src: "albums/Utopia/05.-GOD'S COUNTRY.mp3" },
                     { title: "SIRENS", src: "albums/Utopia/06-SIRENS.mp3" },
                     { title: "MELTDOWN", src: "albums/Utopia/07-MELTDOWN (Ft. Drake).mp3" },
                     { title: "FE!N", src: "albums/Utopia/08-FE!N (Ft. Palyboi Carti & Sheck Wes).mp3" },
@@ -119,7 +124,31 @@
                     { title: "LOOOVE", src: "albums/Utopia/16-LOOOVE (Ft. Kid Cudi).mp3" },
                     { title: "K-POP", src: "albums/Utopia/17-K-POP (Ft. The Weeknd & Bad Bunny).mp3" },
                     { title: "TELEKINESIS", src: "albums/Utopia/18-TELEKINESIS (Ft. Future & SZA).mp3" },
-                    { title: "TIL FURTHER NOTICE", src: "albums/Utopia/19-TIL FURTHER NOTICE (Ft. 21 Savage).mp3" }
+                    { title: "TIL FURTHER NOTICE", src: "albums/Utopia/19-TIL FURTHER NOTICE (Ft. 21 Savage & James Blake).mp3" }
+                ]
+            },
+            {
+                name: 'Rodeo',
+                artist: 'Travis Scott',
+                year: '2015',
+                image: 'albums/Rodeo/image.png',
+                tracks: [
+                    { title: "Pornography", src: "albums/Rodeo/01. Travis Scott - Pornography.mp3" },
+                    { title: "Oh My Dis Side", src: "albums/Rodeo/02. Travis Scott - Oh My Dis Side.mp3" },
+                    { title: "3500", src: "albums/Rodeo/03. Travis Scott - 3500.mp3" },
+                    { title: "Wasted", src: "albums/Rodeo/04. Travis Scott - Wasted.mp3" },
+                    { title: "90210", src: "albums/Rodeo/05. Travis Scott - 90210.mp3" },
+                    { title: "Pray 4 Love", src: "albums/Rodeo/06. Travis Scott - Pray 4 Love.mp3" },
+                    { title: "Nightcrawler", src: "albums/Rodeo/07. Travis Scott - Nightcrawler.mp3" },
+                    { title: "Piss On Your Grave", src: "albums/Rodeo/08. Travis Scott - Piss On Your Grave.mp3" },
+                    { title: "Antidote", src: "albums/Rodeo/09. Travis Scott - Antidote.mp3" },
+                    { title: "Impossible", src: "albums/Rodeo/10. Travis Scott - Impossible.mp3" },
+                    { title: "Maria I'm Drunk", src: "albums/Rodeo/11. Travis Scott - Maria I'm Drunk.mp3" },
+                    { title: "Flying High", src: "albums/Rodeo/12. Travis Scott - Flying High.mp3" },
+                    { title: "I Can Tell", src: "albums/Rodeo/13. Travis Scott - I Can Tell.mp3" },
+                    { title: "Apple Pie", src: "albums/Rodeo/14. Travis Scott - Apple Pie.mp3" },
+                    { title: "Ok Alright", src: "albums/Rodeo/15. Travis Scott - Ok Alright.mp3" },
+                    { title: "Never Catch Me", src: "albums/Rodeo/16. Travis Scott - Never Catch Me.mp3" }
                 ]
             }
         ];

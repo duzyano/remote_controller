@@ -6,7 +6,7 @@ const path = require('path');
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  let filePath = path.join(__dirname, 'client', req.url === '/' ? 'display.html' : req.url);
+  let filePath = path.join(__dirname, 'client', req.url === '/' ? 'display.html' : decodeURIComponent(req.url));
   const ext = path.extname(filePath);
   const contentTypes = {
     '.html': 'text/html',
