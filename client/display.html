@@ -96,6 +96,9 @@
         const albumMeta = document.getElementById('albumMeta');
         const albumTracklist = document.getElementById('albumTracklist');
 
+        // Blokkeert timeupdate broadcasts tijdens een seek
+        let isSeeking = false;
+
         audio.addEventListener('error', (e) => {
             console.error('Audio load error:', audio.error);
             setLog('Audio error: ' + (audio.error ? audio.error.code : 'unknown'));
@@ -150,16 +153,169 @@
                     { title: "Ok Alright", src: "albums/Rodeo/15. Travis Scott - Ok Alright.mp3" },
                     { title: "Never Catch Me", src: "albums/Rodeo/16. Travis Scott - Never Catch Me.mp3" }
                 ]
+            },
+            {
+                name: 'Bully',
+                artist: 'Kanye West',
+                year: '2026',
+                image: 'albums/BULLY/image.png',
+                tracks: [
+                    { title: "ALL THE LOVE (feat. ANDRÉ TROUTMAN)", src: "albums/BULLY/YE - ALL THE LOVE (feat. ANDRÉ TROUTMAN).mp3" },
+                    { title: "BEAUTY AND THE BEAST", src: "albums/BULLY/YE - BEAUTY AND THE BEAST.mp3" },
+                    { title: "BULLY (feat. CEELO GREEN)", src: "albums/BULLY/YE - BULLY (feat. CEELO GREEN).mp3" },
+                    { title: "CIRCLES (feat. DON TOLIVER)", src: "albums/BULLY/YE - CIRCLES (feat. DON TOLIVER).mp3" },
+                    { title: "DAMN", src: "albums/BULLY/YE - DAMN.mp3" },
+                    { title: "FATHER (feat. TRAVIS SCOTT)", src: "albums/BULLY/YE - FATHER (feat. TRAVIS SCOTT).mp3" },
+                    { title: "HIGHS AND LOWS", src: "albums/BULLY/YE - HIGHS AND LOWS.mp3" },
+                    { title: "I CAN'T WAIT", src: "albums/BULLY/YE - I CAN'T WAIT.mp3" },
+                    { title: "KING", src: "albums/BULLY/YE - KING.mp3" },
+                    { title: "LAST BREATH (feat. PESO PLUMA)", src: "albums/BULLY/YE - LAST BREATH (feat. PESO PLUMA).mp3" },
+                    { title: "MAMA'S FAVORITE", src: "albums/BULLY/YE - MAMA'S FAVORITE.mp3" },
+                    { title: "PREACHER MAN", src: "albums/BULLY/YE - PREACHER MAN.mp3" },
+                    { title: "PUNCH DRUNK", src: "albums/BULLY/YE - PUNCH DRUNK.mp3" },
+                    { title: "SISTERS AND BROTHERS", src: "albums/BULLY/YE - SISTERS AND BROTHERS.mp3" },
+                    { title: "THIS A MUST", src: "albums/BULLY/YE - THIS A MUST.mp3" },
+                    { title: "THIS ONE HERE", src: "albums/BULLY/YE - THIS ONE HERE.mp3" },
+                    { title: "WHATEVER WORKS", src: "albums/BULLY/YE - WHATEVER WORKS.mp3" },
+                    { title: "WHITE LINES (feat. ANDRÉ TROUTMAN)", src: "albums/BULLY/YE - WHITE LINES (feat. ANDRÉ TROUTMAN).mp3" }
+                ]
+            },
+            {
+                name: 'THANK ME LATER',
+                artist: 'Drake',
+                year: '2010',
+                image: 'albums/THANK_ME_LATER/thankme.png',
+                tracks: [
+                    { title: "Best I Ever Had", src: "albums/THANK_ME_LATER/Drake - Best I Ever Had.mp3" },
+                    { title: "Fireworks", src: "albums/THANK_ME_LATER/Drake, Alicia Keys - Fireworks.mp3" },
+                    { title: "Karaoke", src: "albums/THANK_ME_LATER/Drake - Karaoke.mp3" },
+                    { title: "The Resistance", src: "albums/THANK_ME_LATER/Drake - The Resistance.mp3" },
+                    { title: "Over", src: "albums/THANK_ME_LATER/Drake - Over.mp3" },
+                    { title: "Show Me a Good Time", src: "albums/THANK_ME_LATER/Drake - Show Me A Good Time.mp3" },
+                    { title: "Up All Night", src: "albums/THANK_ME_LATER/Drake, Nicki Minaj - Up All Night.mp3" },
+                    { title: "Fancy", src: "albums/THANK_ME_LATER/Drake, T.I., Swizz Beatz - Fancy.mp3" },
+                    { title: "Shut It Down", src: "albums/THANK_ME_LATER/Drake, The-Dream - Shut It Down.mp3" },
+                    { title: "Unforgettable", src: "albums/THANK_ME_LATER/Drake, Jeezy - Unforgettable.mp3" },
+                    { title: "Light Up", src: "albums/THANK_ME_LATER/Drake, JAY-Z - Light Up.mp3" },
+                    { title: "Miss Me", src: "albums/THANK_ME_LATER/Drake, Lil Wayne - Miss Me.mp3" },
+                    { title: "Cece's Interlude", src: "albums/THANK_ME_LATER/Drake - Cece's Interlude.mp3" },
+                    { title: "Find Your Love", src: "albums/THANK_ME_LATER/Drake - Find Your Love.mp3" },
+                    { title: "Thank Me Now", src: "albums/THANK_ME_LATER/Drake - Thank Me Now.mp3" }
+                ]
+            },
+            {
+                name: 'Take Care',
+                artist: 'Drake',
+                year: '2011',
+                image: 'albums/Takecare/takecare.png',
+                tracks: [
+                    { title: "Over My Dead Body", src: "albums/Takecare/Drake - Over My Dead Body.mp3" },
+                    { title: "Shot For Me", src: "albums/Takecare/Drake - Shot For Me.mp3" },
+                    { title: "Headlines", src: "albums/Takecare/Drake - Headlines.mp3" },
+                    { title: "Crew Love", src: "albums/Takecare/Drake, The Weeknd - Crew Love.mp3" },
+                    { title: "Take Care", src: "albums/Takecare/Drake, Rihanna - Take Care.mp3" },
+                    { title: "Marvins Room", src: "albums/Takecare/Drake - Marvins Room.mp3" },
+                    { title: "Buried Alive Interlude", src: "albums/Takecare/Drake, Kendrick Lamar - Buried Alive Interlude.mp3" },
+                    { title: "Under Ground Kings", src: "albums/Takecare/Drake - Under Ground Kings.mp3" },
+                    { title: "We'll Be Fine", src: "albums/Takecare/Drake, Birdman - We'll Be Fine.mp3" },
+                    { title: "Make Me Proud", src: "albums/Takecare/Drake, Nicki Minaj - Make Me Proud.mp3" },
+                    { title: "Lord Knows", src: "albums/Takecare/Drake, Rick Ross - Lord Knows.mp3" },
+                    { title: "Cameras/Good Ones Go Interlude - Medley", src: "albums/Takecare/Drake - Cameras  Good Ones Go Interlude - Medley.mp3" },
+                    { title: "Doing It Wrong", src: "albums/Takecare/Drake - Doing It Wrong.mp3" },
+                    { title: "The Real Her", src: "albums/Takecare/Drake, Lil Wayne, André 3000 - The Real Her.mp3" },
+                    { title: "Look What You've Done", src: "albums/Takecare/Drake - Look What You've Done.mp3" },
+                    { title: "HYFR (Hell Ya Fucking Right)", src: "albums/Takecare/Drake, Lil Wayne - HYFR (Hell Ya Fucking Right).mp3" },
+                    { title: "Practice", src: "albums/Takecare/Drake - Practice.mp3" },
+                    { title: "The Ride", src: "albums/Takecare/Drake - The Ride.mp3" },
+                    { title: "The Motto", src: "albums/Takecare/Drake, Lil Wayne - The Motto.mp3" }
+                ]
+            },
+            {
+                name: 'Some Sexy Songs 4 U',
+                artist: 'Drake',
+                year: '2026',
+                image: 'albums/SomeSexySongs4U/image.png',
+                tracks: [
+                    { title: "CN TOWER", src: "albums/SomeSexySongs4U/01 CN TOWER.mp3" },
+                    { title: "MOTH BALLS", src: "albums/SomeSexySongs4U/02 MOTH BALLS.mp3" },
+                    { title: "SOMETHING ABOUT YOU", src: "albums/SomeSexySongs4U/03 SOMETHING ABOUT YOU.mp3" },
+                    { title: "GLORIOUS", src: "albums/SomeSexySongs4U/04 GLORIOUS.mp3" },
+                    { title: "OMW", src: "albums/SomeSexySongs4U/05 OMW.mp3" },
+                    { title: "CELIBACY", src: "albums/SomeSexySongs4U/06 CELIBACY.mp3" },
+                    { title: "SOMEBODY LOVES ME", src: "albums/SomeSexySongs4U/07 SOMEBODY LOVES ME.mp3" },
+                    { title: "DIE TRYING", src: "albums/SomeSexySongs4U/08 DIE TRYING.mp3" },
+                    { title: "NOKIA", src: "albums/SomeSexySongs4U/09 NOKIA.mp3" },
+                    { title: "MEET YOUR PADRE", src: "albums/SomeSexySongs4U/10 MEET YOUR PADRE.mp3" },
+                    { title: "LASERS", src: "albums/SomeSexySongs4U/11 LASERS.mp3" },
+                    { title: "RAINING IN HOUSTON", src: "albums/SomeSexySongs4U/12 RAINING IN HOUSTON.mp3" },
+                    { title: "GIMME A HUG", src: "albums/SomeSexySongs4U/13 GIMME A HUG.mp3" },
+                    { title: "BRIAN STEEL", src: "albums/SomeSexySongs4U/14 BRIAN STEEL.mp3" },
+                    { title: "PIMMIE'S DILEMMA", src: "albums/SomeSexySongs4U/15 PIMMIE'S DILEMMA.mp3" },
+                    { title: "SMALL TOWN FAME", src: "albums/SomeSexySongs4U/16 SMALL TOWN FAME.mp3" },
+                    { title: "DEEPER", src: "albums/SomeSexySongs4U/17 DEEPER.mp3" },
+                    { title: "SPIDER-MAN SUPERMAN", src: "albums/SomeSexySongs4U/18 SPIDER-MAN SUPERMAN.mp3" },
+                    { title: "CRYING IN CHANEL", src: "albums/SomeSexySongs4U/19 CRYING IN CHANEL.mp3" },
+                    { title: "WHEN HE'S GONE", src: "albums/SomeSexySongs4U/20 WHEN HE'S GONE.mp3" },
+                    { title: "GREEDY", src: "albums/SomeSexySongs4U/21 GREEDY.mp3" }
+                ]
+            },
+            {
+                name: 'What a Time to Be Alive',
+                artist: 'Drake & Future',
+                year: '2015',
+                image: 'albums/What_a_time_to_be_alive/image.png',
+                tracks: [
+                    { title: "30 for 30 Freestyle", src: "albums/What_a_time_to_be_alive/Drake - 30 for 30 Freestyle.mp3" },
+                    { title: "Big Rings", src: "albums/What_a_time_to_be_alive/Drake, Future - Big Rings.mp3" },
+                    { title: "Change Locations", src: "albums/What_a_time_to_be_alive/Drake, Future - Change Locations.mp3" },
+                    { title: "Diamonds Dancing", src: "albums/What_a_time_to_be_alive/Drake, Future - Diamonds Dancing.mp3" },
+                    { title: "Digital Dash", src: "albums/What_a_time_to_be_alive/Drake, Future - Digital Dash.mp3" },
+                    { title: "I'm The Plug", src: "albums/What_a_time_to_be_alive/Drake, Future - I'm The Plug.mp3" },
+                    { title: "Jumpman", src: "albums/What_a_time_to_be_alive/Drake, Future - Jumpman.mp3" },
+                    { title: "Live From The Gutter", src: "albums/What_a_time_to_be_alive/Drake, Future - Live From The Gutter.mp3" },
+                    { title: "Plastic Bag", src: "albums/What_a_time_to_be_alive/Drake, Future - Plastic Bag.mp3" },
+                    { title: "Scholarships", src: "albums/What_a_time_to_be_alive/Drake, Future - Scholarships.mp3" },
+                    { title: "Jersey", src: "albums/What_a_time_to_be_alive/Future - Jersey.mp3" }
+                ]
+            },
+            {
+                name: 'Whole Lotta Red',
+                artist: 'Playboi Carti',
+                year: '2020',
+                image: 'albums/WholelottaRed/image.png',
+                tracks: [
+                    { title: "Rockstar Made", src: "albums/WholelottaRed/01 Rockstar Made.mp3" },
+                    { title: "Go2DaMoon", src: "albums/WholelottaRed/02 Go2DaMoon (feat. Kanye West).mp3" },
+                    { title: "Stop Breathing", src: "albums/WholelottaRed/03 Stop Breathing.mp3" },
+                    { title: "Beno!", src: "albums/WholelottaRed/04 Beno!.mp3" },
+                    { title: "JumpOutTheHouse", src: "albums/WholelottaRed/05 JumpOutTheHouse.mp3" },
+                    { title: "M3tamorphosis", src: "albums/WholelottaRed/06 M3tamorphosis (feat. Kid Cudi).mp3" },
+                    { title: "Slay3r", src: "albums/WholelottaRed/07 Slay3r.mp3" },
+                    { title: "No Sl33p", src: "albums/WholelottaRed/08 No Sl33p.mp3" },
+                    { title: "New Tank", src: "albums/WholelottaRed/09 New Tank.mp3" },
+                    { title: "Teen X", src: "albums/WholelottaRed/10 Teen X (feat. Future).mp3" },
+                    { title: "Meh", src: "albums/WholelottaRed/11 Meh.mp3" },
+                    { title: "Vamp Anthem", src: "albums/WholelottaRed/12 Vamp Anthem.mp3" },
+                    { title: "New N3on", src: "albums/WholelottaRed/13 New N3on.mp3" },
+                    { title: "Control", src: "albums/WholelottaRed/14 Control.mp3" },
+                    { title: "Punk Monk", src: "albums/WholelottaRed/15 Punk Monk.mp3" },
+                    { title: "On That Time", src: "albums/WholelottaRed/16 On That Time.mp3" },
+                    { title: "King Vamp", src: "albums/WholelottaRed/17 King Vamp.mp3" },
+                    { title: "Place", src: "albums/WholelottaRed/18 Place.mp3" },
+                    { title: "Sky", src: "albums/WholelottaRed/19 Sky.mp3" },
+                    { title: "Over", src: "albums/WholelottaRed/20 Over.mp3" },
+                    { title: "ILoveUIHateU", src: "albums/WholelottaRed/21 ILoveUIHateU.mp3" },
+                    { title: "Die4Guy", src: "albums/WholelottaRed/22 Die4Guy.mp3" },
+                    { title: "Not PLaying", src: "albums/WholelottaRed/23 Not PLaying.mp3" },
+                    { title: "F33l Lik3 Dyin", src: "albums/WholelottaRed/24 F33l Lik3 Dyin.mp3" }
+                ]
             }
         ];
-
         let currentAlbumIndex = 0;
         let currentTrackIndex = 0;
         let volume = 0.7;
 
-        function getCurrentAlbum() {
-            return albums[currentAlbumIndex];
-        }
+        function getCurrentAlbum() { return albums[currentAlbumIndex]; }
 
         function renderAlbumGrid() {
             albumGrid.innerHTML = '';
@@ -206,16 +362,23 @@
             const track = album.tracks[currentTrackIndex];
             audio.src = track.src;
             audio.volume = volume;
-            trackNameEl.textContent = track.title;
-            trackArtistEl.textContent = `${album.artist} · ${album.name}`;
-            renderPlaylist();
-            updateAlbumInfo();
-            if (play) {
-                audio.play();
-            }
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'track_info', title: track.title, artist: `${album.artist} · ${album.name}` }));
-            }
+
+            // Wacht tot audio geladen is voordat we UI updaten
+            audio.addEventListener('loadedmetadata', () => {
+                trackNameEl.textContent = track.title;
+                trackArtistEl.textContent = `${album.artist} · ${album.name}`;
+                renderPlaylist();
+                updateAlbumInfo();
+                if (play) audio.play();
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'track_info',
+                        title: track.title,
+                        artist: `${album.artist} · ${album.name}`,
+                        src: track.src
+                    }));
+                }
+            }, { once: true });
         }
 
         function renderPlaylist() {
@@ -250,28 +413,18 @@
             logEl.textContent = `laatste commando: ${message} — ${new Date().toLocaleTimeString()}`;
         }
 
-        function showTracklist() {
-            albumTracklist.classList.add('visible');
-        }
-
-        function hideTracklist() {
-            albumTracklist.classList.remove('visible');
-        }
-
-        function toggleTracklist() {
-            albumTracklist.classList.toggle('visible');
-        }
-
-        function scrollToAlbums() {
-            albumGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        function showTracklist() { albumTracklist.classList.add('visible'); }
+        function hideTracklist() { albumTracklist.classList.remove('visible'); }
+        function toggleTracklist() { albumTracklist.classList.toggle('visible'); }
+        function scrollToAlbums() { albumGrid.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
         audio.addEventListener('timeupdate', () => {
-            if (!audio.duration) return;
+            if (!audio.duration || isNaN(audio.duration)) return;
             progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
             currentTimeEl.textContent = formatTime(audio.currentTime);
             totalTimeEl.textContent = formatTime(audio.duration);
-            if (ws.readyState === WebSocket.OPEN) {
+            // Niet broadcasten tijdens seek, anders overschrijft controller de positie terug
+            if (!isSeeking && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     type: 'time_update',
                     progress: Math.round((audio.currentTime / audio.duration) * 100),
@@ -301,22 +454,50 @@
                 statusText.textContent = n > 0 ? `${n} controller${n > 1 ? 's' : ''} verbonden` : 'display verbonden';
                 return;
             }
+            if (data.action === 'local_audio') {
+                if (data.enabled) audio.pause();
+                return;
+            }
             setLog(data.action);
             switch (data.action) {
-                case 'play_pause': if (audio.paused) { if (!audio.src || audio.src === location.href) loadTrack(0, true); audio.play(); } else audio.pause(); break;
+                case 'play_pause':
+                    if (audio.paused) { if (!audio.src || audio.src === location.href) loadTrack(0, true); audio.play(); }
+                    else audio.pause();
+                    break;
                 case 'next': loadTrack(currentTrackIndex + 1, true); break;
                 case 'prev': loadTrack(currentTrackIndex - 1, true); break;
                 case 'volume_up': setVolume(volume + 0.1); break;
                 case 'volume_down': setVolume(volume - 0.1); break;
-                case 'seek': if (audio.duration) audio.currentTime = (data.value / 100) * audio.duration; break;
+                case 'seek_back':
+                    if (audio.src && audio.readyState >= 2 && audio.duration) {
+                        isSeeking = true;
+                        const newTime = Math.max(0, audio.currentTime - 5);
+                        audio.currentTime = newTime;
+                        setLog('seek_back → ' + formatTime(newTime));
+                        setTimeout(() => { isSeeking = false; }, 300);
+                    }
+                    break;
+                case 'seek_forward':
+                    if (audio.src && audio.readyState >= 2 && audio.duration) {
+                        isSeeking = true;
+                        const newTime = Math.min(audio.duration, audio.currentTime + 5);
+                        audio.currentTime = newTime;
+                        setLog('seek_forward → ' + formatTime(newTime));
+                        setTimeout(() => { isSeeking = false; }, 300);
+                    }
+                    break;
+                    break;
+                case 'seek':
+                    if (audio.duration) {
+                        isSeeking = true;
+                        audio.currentTime = (data.value / 100) * audio.duration;
+                        setTimeout(() => { isSeeking = false; }, 300);
+                    }
+                    break;
             }
         };
 
-        albumCoverContainer.onclick = () => {
-            if (getCurrentAlbum()) {
-                toggleTracklist();
-            }
-        };
+        albumCoverContainer.onclick = () => { if (getCurrentAlbum()) toggleTracklist(); };
 
         renderAlbumGrid();
         selectAlbum(0);

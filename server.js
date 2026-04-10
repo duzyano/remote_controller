@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3000;
+const HOST = '0.0.0.0'; // Bind to all interfaces
 
 const server = http.createServer((req, res) => {
   let filePath = path.join(__dirname, 'client', req.url === '/' ? 'display.html' : decodeURIComponent(req.url));

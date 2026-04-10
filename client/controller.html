@@ -31,7 +31,6 @@
   </div>
 
   <div class="controls">
-    <!-- Hoofd knoppen: achteruit 5s | vorige | play/pause | volgende | vooruit 5s -->
     <div class="btn-row">
       <button class="btn seek-btn" onclick="send('seek_back')">
         ⏪
@@ -46,7 +45,6 @@
       </button>
     </div>
 
-    <!-- Volume -->
     <div class="btn-row">
       <button class="btn btn-vol" onclick="send('volume_down')">🔉</button>
       <div class="vol-label">
@@ -54,9 +52,11 @@
         <span style="font-size:10px;color:var(--muted)">vol</span>
       </div>
       <button class="btn btn-vol" onclick="send('volume_up')">🔊</button>
+      <button class="btn btn-vol" id="localAudioBtn" onclick="toggleLocalAudio()">🔈</button>
     </div>
   </div>
 
+  <audio id="audio"></audio>
   <script>
     const statusBadge = document.getElementById('statusBadge');
     const statusText = document.getElementById('statusText');
@@ -67,11 +67,24 @@
     const trackArtistEl = document.getElementById('trackArtist');
     const currentTimeEl = document.getElementById('currentTime');
     const totalTimeEl = document.getElementById('totalTime');
+    const localAudioBtn = document.getElementById('localAudioBtn');
+    const audio = document.getElementById('audio');
 
     let isPlaying = false;
+    let localAudioEnabled = false;
+    let currentTrackSrc = '';
     let seekTimeout = null;
+    let isSeeking = false;
 
-    const ws = new WebSocket(`ws://${location.hostname}:3000`);
+    let serverIP = location.hostname;
+    if (serverIP === 'localhost' || serverIP === '127.0.0.1') {
+      serverIP = '10.16.35.23';
+    }
+    if (!serverIP || serverIP === 'localhost') {
+      serverIP = prompt('Server IP adres:', '10.16.35.23');
+    }
+
+    const ws = new WebSocket(`ws://${serverIP}:3000`);
 
     ws.onopen = () => {
       statusBadge.classList.add('connected');
@@ -88,27 +101,39 @@
       const data = JSON.parse(e.data);
       if (data.type === 'status') return;
 
-      // Sync volume display
       if (data.action === 'volume_up') volDisplay.textContent = Math.min(100, parseInt(volDisplay.textContent) + 10);
       if (data.action === 'volume_down') volDisplay.textContent = Math.max(0, parseInt(volDisplay.textContent) - 10);
 
-      // Sync track info van display naar controller
       if (data.type === 'track_info') {
         trackNameEl.textContent = data.title;
         trackArtistEl.textContent = data.artist;
+        currentTrackSrc = data.src || currentTrackSrc;
+        if (localAudioEnabled && currentTrackSrc) {
+          audio.src = currentTrackSrc;
+          if (isPlaying) audio.play();
+        }
       }
 
-      // Sync tijd
-      if (data.type === 'time_update') {
+      // Alleen updaten als wij zelf niet aan het seeken zijn
+      if (data.type === 'time_update' && !isSeeking) {
         seekbar.value = data.progress;
         currentTimeEl.textContent = data.current;
         totalTimeEl.textContent = data.total;
+        if (localAudioEnabled && audio.duration) {
+          const targetTime = (data.progress / 100) * audio.duration;
+          if (Math.abs(audio.currentTime - targetTime) > 1) {
+            audio.currentTime = targetTime;
+          }
+        }
       }
 
-      // Sync play state
       if (data.type === 'play_state') {
         isPlaying = data.playing;
         updatePlayBtn();
+        if (localAudioEnabled) {
+          if (isPlaying) audio.play();
+          else audio.pause();
+        }
       }
     };
 
@@ -116,12 +141,37 @@
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ action, ...extra }));
       }
+
+      // Lokale audio direct aanpassen voor soepel gevoel
+      if (localAudioEnabled && audio.src && audio.readyState >= 2 && audio.duration) {
+        if (action === 'seek_back') {
+          audio.currentTime = Math.max(0, audio.currentTime - 5);
+        } else if (action === 'seek_forward') {
+          audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+        }
+      }
     }
 
     function togglePlay() {
       send('play_pause');
       isPlaying = !isPlaying;
       updatePlayBtn();
+      if (localAudioEnabled) {
+        if (isPlaying) audio.play();
+        else audio.pause();
+      }
+    }
+
+    function toggleLocalAudio() {
+      localAudioEnabled = !localAudioEnabled;
+      localAudioBtn.classList.toggle('active', localAudioEnabled);
+      if (localAudioEnabled && currentTrackSrc) {
+        audio.src = currentTrackSrc;
+        if (isPlaying) audio.play();
+      } else {
+        audio.pause();
+      }
+      send('local_audio', { enabled: localAudioEnabled });
     }
 
     function updatePlayBtn() {
@@ -135,11 +185,35 @@
       }
     }
 
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    }
+
     seekbar.addEventListener('input', () => {
+      isSeeking = true;
       clearTimeout(seekTimeout);
       seekTimeout = setTimeout(() => {
-        send('seek', { value: parseInt(seekbar.value) });
+        const seekValue = parseInt(seekbar.value);
+        send('seek', { value: seekValue });
+        if (localAudioEnabled && audio.duration) {
+          audio.currentTime = (seekValue / 100) * audio.duration;
+        }
+        setTimeout(() => { isSeeking = false; }, 500);
       }, 150);
+    });
+
+    audio.addEventListener('ended', () => {
+      if (localAudioEnabled) send('next');
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (localAudioEnabled && audio.duration) {
+        const progress = Math.round((audio.currentTime / audio.duration) * 100);
+        seekbar.value = progress;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        totalTimeEl.textContent = formatTime(audio.duration);
+      }
     });
   </script>
 </body>
