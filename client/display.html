@@ -443,8 +443,8 @@
                 ws.send(JSON.stringify({ type: 'play_state', playing }));
             }
         }
-
-        const ws = new WebSocket(`ws://${location.hostname}:3000`);
+        const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+        const ws = new WebSocket(`${protocol}//${location.host}`);
         ws.onopen = () => { statusBadge.classList.add('connected'); statusText.textContent = 'display verbonden'; };
         ws.onclose = () => { statusBadge.classList.remove('connected'); statusText.textContent = 'verbinding verbroken'; };
         ws.onmessage = (e) => {
